@@ -26,9 +26,9 @@ app.get("/sau", (req, res) => {
 })
             
 app.post("/media", (req, res) => {
-    const { nome, nota1, nota2 } = req.body
+    const { nome2, nota1, nota2 } = req.body
     
-    if (!nome || !nota1 || !nota2 )
+    if (!nome2 || !nota1 || !nota2 )
         
      {
         return res.status(404).json({ erro: "dados imcompletos" })
@@ -37,7 +37,7 @@ app.post("/media", (req, res) => {
     const media =  (parseFloat(nota1)  + parseFloat(nota2))/2 
    
     res.json({
-        nome,
+        nome2,
         nota1,
         nota2,
         mensagem: media >=70? "aprovado":"reprovado",
