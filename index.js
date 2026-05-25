@@ -1,13 +1,15 @@
 const express = require("express");
 const fs = require("fs");
+const cors = require("cors")
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
+app.use(cors())
 
 //http://localhost:3000/saudacao?nome=maria
-app.get("/média", (req, res) => {
+app.get("/sau", (req, res) => {
     const nome = req.query.nome;
     if (!nome) {
         return res.status(404).json(
@@ -23,7 +25,7 @@ app.get("/média", (req, res) => {
     )
 })
             
-app.post("/média", (req, res) => {
+app.post("/media", (req, res) => {
     const { nome, nota1, nota2 } = req.body
     
     if (!nome || !nota1 || !nota2 )
@@ -32,7 +34,7 @@ app.post("/média", (req, res) => {
         return res.status(404).json({ erro: "dados imcompletos" })
 
     }
-    const media =  (parsefloat(nota1)  + parseFloat(nota2))/2 
+    const media =  (parseFloat(nota1)  + parseFloat(nota2))/2 
    
     res.json({
         nome,
@@ -59,7 +61,7 @@ app.post("/imc", (req, res) => {
     res.json({
         nome,
         idade,
-        imc:toFixed(2)
+        imc: imc.toFixed(2)
     })
    
 })
