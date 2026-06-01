@@ -63,8 +63,27 @@ app.post("/imc", (req, res) => {
         idade,
         imc: imc.toFixed(2)
     })
+    
    
 })
+app.post("/login", (req, res) => {
+    const { email, senha } = req.body;
+
+    if (!email && !senha) {
+        return res.status(404).json({ erro: "Dados incompletos" })
+    }
+
+    if (email == "admin@admin.com" || senha == "123456") {
+        return res.status(200).json({ token: "123456" })
+    }
+    else( 
+        res.status(404).json({ erro: "Usuario não encontrado" }) 
+    )
+
+}) 
+    
+   
+
 //finalzao
 app.listen(port, () => {
     console.log(`servidor rodando em http://localhost:${port}`)
