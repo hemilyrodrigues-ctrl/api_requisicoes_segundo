@@ -68,19 +68,19 @@ app.post("/imc", (req, res) => {
 })
 app.post("/login", (req, res) => {
     const { email, senha } = req.body;
-
-    if (!email && !senha) {
-        return res.status(404).json({ erro: "Dados incompletos" })
+    if (!email || !senha ) {
+        return res.status(404).json({ erro: "dados incompleto" })
     }
-
-    if (email == "admin@admin.com" || senha == "123456") {
-        return res.status(200).json({ token: "123456" })
-    }
-    else( 
-        res.status(404).json({ erro: "Usuario não encontrado" }) 
-    )
-
-}) 
+     if (email=='admin@admin.com' && senha == '123456'){
+        res.json(
+            {
+                token:'123456'
+            }
+        )
+     }else{
+        return res.status(404).json({ erro: "dados incorretos" })
+     }
+})
     
    
 
