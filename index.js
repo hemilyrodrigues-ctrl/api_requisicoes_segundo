@@ -1,124 +1,147 @@
 const express = require("express");
 const fs = require("fs");
-const cors = require("cors")
-const path = require('path')
-
+const cors = require("cors");
+const path = require("path"); //cuida dos caminhos do seu arquivo, para ele ser achado independente de onde esteja salvo
 const app = express();
 const port = 3000;
-
 app.use(express.json());
-app.use(cors())
+app.use(cors());
 
-const clientesFile = path.join(__dirname, "clientes.json")
+const clientesFile = path.join(__dirname, "clientes.json");
+function salvarClientes(clientes){
+    fs.writeFileSync(clientesFile, JSON.stringify(clientes, null, 2),"utf-8")
+}
 
-function salvarClientes(clientes) {
-    fs.writeFileSync(clientesFile, JSON.stringify(clientes, null, 2), "utf-8")
-
-} 
-
-function lerClientes(){
-    if (!fs.existsSync(clientesFile)){
-        return[];
+function lerClientes(){//ver se o clientes que o front está mandando já existe no sistema
+    if (!fs.existsSync(clientesFile)){// fs biblioteca, existtsSync é uma função da biblioteca para ver se o arquivo já existe
+        return[];//retorna um array vazio
     }
-    const dados=fs.readFileSync(clientesFile,'utf-8')
+    const data = fs.readFileSync(clientesFile, 'utf-8');//vai ler o arquivo e escrever ele dentro de dados com acentos e etc
     try{
-        return JSON.parse(dados) || [];
+        return JSON.parse(data) || []; // a função parse transforma a string em json e o || faz com que se na hora de transformar o dados dar erro, ele retorna um array vazio
     }
     catch(e){
-        return []
+        return [];// caso der erro ele retorna um arry vazio
     }
 }
 
-app.post("/clientes", (req, res) => {
-    const { nome, cpf, cep, rua, cidade, estado, numero } = req.body
-    if (!nome || !cpf || !cep) {
-        return res.status(404).json({ erro: "dados imcompletos " })
+app.post("/clientes", (req, res) =>{
+    const { nome, cpf, cep, rua, cidade, estado, numero } = req.body;
+    if (!nome || !cpf || !cep){
+        return res.status(404).json({erro: "dados incompletos"})
     }
-    const clientes = lerClientes();
-    if (clientes.some(c => c.cpf === cpf)) {
-        return res.status(400).json({ erro: "cliente já cadastrado" })
+    const clientes = lerClientes(); //todos os clientes serão armazenados na constante clientes
+    if (clientes.some(c=>c.cpf===cpf)){ //o c funciona como uma variavel de posição, que vai tomar cada posição de linha da const clientes e verificar se é igual ao cpf que está vindo
+        return res.status(404).json({erro: "Clientes já cadastrado"})
     }
-    const novoCliente = { nome, cpf, cep, rua, cidade, estado, numero };
-    clientes.push(novoCliente);
-    salvarClientes(clientes);
-    return res.status(201).json({ mensagem: "cliente cadastrado com susesso" })
+    const novoCliente = {nome, cpf, cep, rua, cidade, estado, numero};//se o cliente for novo, ele será salvo na cost novoCliente
+    console.log('nnovoCLiente')
+    console.log(novoCliente);
+    console.log('clientes')
+    console.log(clientes);
+    clientes.push(novoCliente);// a função push vai salvar todos os dados dentro da const clientes sem excluir os clientes já cadastrados anteriormente, formando uma lista com os clienes antigos mais o novo
+    salvarClientes(clientes)//vai salvar clientes dentro da função salvaClientes
+    console.log('clientesSlavo')
+    console.log(clientes)
+    return res.status(201).json({mensagem: "cliente cadastrado com sucesso"})
+})
 
+/////////
+
+const clientesFile = path.join(__dirname, "clientes.json");
+function salvarClientes(clientes){
+    fs.writeFileSync(clientesFile, JSON.stringify(clientes, null, 2),"utf-8")
+}
+
+function lerClientes(){//ver se o clientes que o front está mandando já existe no sistema
+    if (!fs.existsSync(clientesFile)){// fs biblioteca, existtsSync é uma função da biblioteca para ver se o arquivo já existe
+        return[];//retorna um array vazio
+    }
+    const data = fs.readFileSync(clientesFile, 'utf-8');//vai ler o arquivo e escrever ele dentro de dados com acentos e etc
+    try{
+        return JSON.parse(data) || []; // a função parse transforma a string em json e o || faz com que se na hora de transformar o dados dar erro, ele retorna um array vazio
+    }
+    catch(e){
+        return [];// caso der erro ele retorna um arry vazio
+    }
+}
+
+app.post("/clientes", (req, res) =>{
+    const { nome, cpf, cep, rua, cidade, estado, numero } = req.body;
+    if (!nome || !cpf || !cep){
+        return res.status(404).json({erro: "dados incompletos"})
+    }
+    const clientes = lerClientes(); //todos os clientes serão armazenados na constante clientes
+    if (clientes.some(c=>c.cpf===cpf)){ //o c funciona como uma variavel de posição, que vai tomar cada posição de linha da const clientes e verificar se é igual ao cpf que está vindo
+        return res.status(404).json({erro: "Clientes já cadastrado"})
+    }
+    const novoCliente = {nome, cpf, cep, rua, cidade, estado, numero};//se o cliente for novo, ele será salvo na cost novoCliente
+    console.log('nnovoCLiente')
+    console.log(novoCliente);
+    console.log('clientes')
+    console.log(clientes);
+    clientes.push(novoCliente);// a função push vai salvar todos os dados dentro da const clientes sem excluir os clientes já cadastrados anteriormente, formando uma lista com os clienes antigos mais o novo
+    salvarClientes(clientes)//vai salvar clientes dentro da função salvaClientes
+    console.log('clientesSlavo')
+    console.log(clientes)
+    return res.status(201).json({mensagem: "cliente cadastrado com sucesso"})
 })
 
 //http://localhost:3000/saudacao?nome=maria
-app.get("/sau", (req, res) => {
+app.get("/saudacao", (req, res) => {
     const nome = req.query.nome;
     if (!nome) {
         return res.status(404).json(
             {
-                erro: "nome não foi informado"
+                erro: "nome não informado"
             }
         )
     }
     res.json(
         {
-            mensagem: `saudações ${nome}!`
+            mensagem: `saudação ${nome}!`
         }
     )
 })
-
-app.post("/media", (req, res) => {
-    const { nome2, nota1, nota2 } = req.body
-
-    if (!nome2 || !nota1 || !nota2) {
-        return res.status(404).json({ erro: "dados imcompletos" })
-
-    }
-    const media = (parseFloat(nota1) + parseFloat(nota2)) / 2
-
-    res.json({
-        nome2,
-        nota1,
-        nota2,
-        mensagem: media >= 70 ? "aprovado" : "reprovado",
-        media: parseFloat(media)
-
-
-    })
-
-})
-
 app.post("/imc", (req, res) => {
-    const { nome, idade, altura, peso } = req.body
+    const { nome, idade, altura, peso } = req.body;
 
     if (!nome || !idade || !altura || !peso) {
         return res.status(404).json({ erro: "dados imcompletos" })
-
     }
-    const imc = peso / (altura * altura)
-
+    const imc = peso / (altura * altura);
     res.json({
         nome,
         idade,
         imc: imc.toFixed(2)
     })
+})
+app.post("/media", (req, res) => {
+    const { nota1, nota2 } = req.body;
 
+    if (!nota1 || !nota2) {
+        return res.status(404).json({ erro: "dados incompletos" })
+    }
+    const media = (parseFloat(nota1) + parseFloat(nota2)) / 2;
+
+    res.json({
+        mensagem: media >= 7 ? "aprovado" : "reprovado",
+        media: parseFloat(media)
+    })
 
 })
 app.post("/login", (req, res) => {
     const { email, senha } = req.body;
-    if (!email || !senha) {
-        return res.status(404).json({ erro: "dados incompleto" })
-    }
-    if (email == 'admin@admin.com' && senha == '123456') {
 
-        res.json(
-            {
-                token: '123456'
-            }
-        )
+    if (!email || !senha) {
+        return res.status(404).json({ erro: "dados incompletos" })
+    }
+     if (email === "admin@admin.com" && senha === "123456") {
+        return res.status(200).json({ token: "123456" })
     } else {
-        return res.status(404).json({ erro: "dados incorretos" })
+        return res.status(404).json({ erro: "senha ou email incorreto" })
     }
 })
-
-
-
 //finalzao
 app.listen(port, () => {
     console.log(`servidor rodando em http://localhost:${port}`)
